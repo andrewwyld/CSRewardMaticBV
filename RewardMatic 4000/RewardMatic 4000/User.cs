@@ -1,35 +1,34 @@
-#nullable enable
-using System;
-using System.Collections.Generic;
+﻿#nullable enable
 
 namespace RewardMatic_4000
 {
     public class User
     {
-        private int _score = 0;
+        private uint _score = 0;
+        private readonly IRewardRepository _rewardRepository;
 
-        public User()
+        public User(IRewardRepository rewardRepository)
         {
+            _rewardRepository = rewardRepository;
         }
 
-        public int Score
+        public uint Score
         {
             get { return _score; }
         }
 
-        public void UpdateScore(int update)
+        /// <summary>
+        /// Method <c>UpdateScore</c> increments the user's score by the given nonnegative input
+        /// </summary>
+        public void UpdateScore(uint update)
         {
             _score += update;
         }
 
-        public Reward? GetRewardInProgress()
-        {
-            throw new NotImplementedException();
-        }
+        public Reward? GetRewardInProgress() =>
+            _rewardRepository.GetRewardInProgress(_score);
 
-        public Reward? GetLatestRewardReceived()
-        {
-            throw new NotImplementedException();
-        }
+        public Reward? GetLatestRewardReceived() =>
+            _rewardRepository.GetCurrentReward(_score);
     }
 }

@@ -1,4 +1,4 @@
-namespace RewardMatic_4000
+﻿namespace RewardMatic_4000
 {
     public class Reward
     {
@@ -16,7 +16,7 @@ namespace RewardMatic_4000
 
         // the reward message
 
-        private Reward(int scoreDifferential, string message)
+        public Reward(int scoreDifferential, string message)
         {
             ScoreDifferential = scoreDifferential;
             Message = message;
