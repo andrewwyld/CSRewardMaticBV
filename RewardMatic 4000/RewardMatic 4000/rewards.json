@@ -1,0 +1,59 @@
+[
+  {
+    "name": "Getting Started",
+    "rewards":
+    [
+      {"scoredifferential": 200, "name": "Starting strong!"},
+      {"scoredifferential": 300, "name": "Nice job!"},
+      {"scoredifferential": 400, "name": "Platitudes are awesome!"},
+      {"scoredifferential": 500, "name": "Keep going for cake!"},
+      {"scoredifferential": 600, "name": "OK, there's no cake. Keep going anyway!"},
+      {"scoredifferential": 700, "name": "YOU FINISHED! You are the only person to do this."}
+    ]
+  },
+  {
+    "name": "Now We're Cooking",
+    "rewards":
+    [
+      {"scoredifferential": 250, "name": "Warming up!"},
+      {"scoredifferential": 375, "name": "Hot plates!"},
+      {"scoredifferential": 500, "name": "Pancake power!"},
+      {"scoredifferential": 625, "name": "Séquentiel de couleur à memoire"},
+      {"scoredifferential": 750, "name": "Fiery feast!"},
+      {"scoredifferential": 875, "name": "Sweet success!"}
+    ]
+  },
+  {
+    "name": "Our Data Entry Operative Has Left",
+    "rewards":
+    [
+      {"scoredifferential": 300, "name": "Phoning it in at this point"},
+      {"scoredifferential": 450, "name": "Another goal"},
+      {"scoredifferential": 600, "name": "This one only has three rewards"}
+    ]
+  },
+  {
+    "name": "At Last, Back To Enthusiasm",
+    "rewards":
+    [
+      {"scoredifferential": 350, "name": "Mighty!"},
+      {"scoredifferential": 525, "name": "National Television System Committee"},
+      {"scoredifferential": 700, "name": "Extremely mighty!"},
+      {"scoredifferential": 875, "name": "Might be even mightier!"},
+      {"scoredifferential": 1050, "name": "Mightiest!"},
+      {"scoredifferential": 1225, "name": "Even mightiester! (Try saying that three times fast)"}
+    ]
+  },
+  {
+    "name": "The Alans of 1970s Library Music",
+    "rewards":
+    [
+      {"scoredifferential": 400, "name": "Alan Parker"},
+      {"scoredifferential": 600, "name": "Alan Tew"},
+      {"scoredifferential": 800, "name": "Alan Hawkshaw"},
+      {"scoredifferential": 1000, "name": "Alan Moorhouse"},
+      {"scoredifferential": 1200, "name": "Alan Silvestri"},
+      {"scoredifferential": 1400, "name": "Alan Menken"}
+    ]
+  }
+]
