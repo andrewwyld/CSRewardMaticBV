@@ -6,6 +6,7 @@ namespace RewardMatic_4000
     public class RewardRepository : IRewardRepository
     {
         private readonly List<Reward> _availableRewards;
+        private readonly List<RewardGroup> rewardGroups;
 
         public RewardRepository(List<Reward> rewards)
         {
@@ -21,11 +22,26 @@ namespace RewardMatic_4000
             }
         }
 
+        public RewardRepository(List<RewardGroup> rewardGroups)
+        {
+            this.rewardGroups = rewardGroups;
+        }
+
+        public RewardGroup GetLatestRewardGroupReceived(uint score)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public Reward GetLatestRewardReceived(uint score)
         {
             return _availableRewards
                 .Where(reward => reward.ScoreDifferential <= score)
                 .LastOrDefault();
+        }
+
+        public RewardGroup GetRewardGroupInProgress(uint score)
+        {
+            throw new System.NotImplementedException();
         }
 
         public Reward GetRewardInProgress(uint score)

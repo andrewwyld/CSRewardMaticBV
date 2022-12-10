@@ -8,6 +8,8 @@ namespace RewardMatic_4000
 	{
         List<Reward> _rewards;
 
+        List<RewardGroup> _rewardGroups;
+
         [SetUp]
         public void Setup()
         {
@@ -17,6 +19,29 @@ namespace RewardMatic_4000
                 new Reward(4, "fourth"),
                 new Reward(2, "second"),
                 new Reward(3, "third")
+            };
+
+            _rewardGroups = new List<RewardGroup>
+            {
+                new RewardGroup("first-group", new List<Reward>
+                {
+                    new Reward(1, "first-group-first"),
+                    new Reward(4, "first-group-second"),
+                    new Reward(2, "first-group-third")
+                }),
+                new RewardGroup("second-group", new List<Reward>
+                {
+                    new Reward(2, "second-group-first"),
+                    new Reward(6, "second-group-second"),
+                    new Reward(3, "second-group-third")
+                }),
+                new RewardGroup("third-group", new List<Reward>
+                {
+                    new Reward(10, "third-group-first"),
+                    new Reward(7, "third-group-second"),
+                    new Reward(2, "third-group-third"),
+                    new Reward(5, "third-group-fourth")
+                })
             };
         }
 
@@ -77,6 +102,62 @@ namespace RewardMatic_4000
 
             score = 2500000;
             Assert.IsNull(emptyRepository.GetLatestRewardReceived(score));
+        }
+
+
+        [Test]
+        public void TestGetRewardGroupInProgress()
+        {
+            var repository = new RewardRepository(_rewardGroups);
+            uint score = 0;
+
+            // Base case where score is 0
+            Assert.IsNotNull(repository.GetRewardGroupInProgress(score));
+            Assert.AreEqual("first-group", repository.GetRewardGroupInProgress(score).Name);
+
+            score = 5;
+
+            // Score is somewhere inbetween the reward groups
+            Assert.IsNotNull(repository.GetRewardGroupInProgress(score));
+            Assert.AreEqual("second-group", repository.GetRewardGroupInProgress(score).Name);
+
+            score = 6;
+            Assert.IsNotNull(repository.GetRewardGroupInProgress(score));
+            Assert.AreEqual("third-group", repository.GetRewardGroupInProgress(score).Name);
+
+            score = 30;
+            // Score is outside of the bounds of all the groups
+            Assert.IsNull(repository.GetRewardGroupInProgress(score));
+        }
+
+        [Test]
+        public void TestGetLatestRewardGroup()
+        {
+            var repository = new RewardRepository(_rewardGroups);
+            uint score = 0;
+
+            // Base case where score is 0. No reward groups completed
+            Assert.IsNull(repository.GetLatestRewardGroupReceived(score));
+
+            score = 2;
+            Assert.IsNull(repository.GetLatestRewardGroupReceived(score));
+
+            // We have just completed a reward in the third group
+            score = 5;
+            Assert.IsNotNull(repository.GetLatestRewardGroupReceived(score));
+            Assert.AreEqual("third-group", repository.GetLatestRewardGroupReceived(score).Name);
+
+            // We have just completed a reward in the second group
+            score = 6;
+            Assert.IsNotNull(repository.GetLatestRewardGroupReceived(score));
+            Assert.AreEqual("second-group", repository.GetLatestRewardGroupReceived(score).Name);
+
+            // We have completed all the groups
+            score = 60;
+            Assert.IsNotNull(repository.GetLatestRewardGroupReceived(score));
+            Assert.AreEqual("third-group", repository.GetLatestRewardGroupReceived(score).Name);
+
+
         }
     }
 }
