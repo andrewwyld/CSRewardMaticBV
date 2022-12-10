@@ -29,6 +29,6 @@ namespace RewardMatic_4000
             _rewardRepository.GetRewardInProgress(_score);
 
         public Reward? GetLatestRewardReceived() =>
-            _rewardRepository.GetCurrentReward(_score);
+            _rewardRepository.GetLatestRewardReceived(_score);
     }
 }

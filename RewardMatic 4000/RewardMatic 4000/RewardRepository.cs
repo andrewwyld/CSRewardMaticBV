@@ -5,12 +5,7 @@ namespace RewardMatic_4000
 {
     public class RewardRepository : IRewardRepository
     {
-        private readonly IEnumerable<Reward> _availableRewards;
-
-        public RewardRepository()
-        {
-            _availableRewards = Reward.AvailableRewards;
-        }
+        private readonly List<Reward> _availableRewards;
 
         public RewardRepository(List<Reward> rewards)
         {
@@ -21,10 +16,12 @@ namespace RewardMatic_4000
             else
             {
                 _availableRewards = rewards;
+                _availableRewards
+                    .Sort((reward1, reward2) => reward1.ScoreDifferential.CompareTo(reward2.ScoreDifferential));
             }
         }
 
-        public Reward GetCurrentReward(uint score)
+        public Reward GetLatestRewardReceived(uint score)
         {
             return _availableRewards
                 .Where(reward => reward.ScoreDifferential <= score)
@@ -37,6 +34,10 @@ namespace RewardMatic_4000
                 .Where(reward => reward.ScoreDifferential > score)
                 .FirstOrDefault();
         }
+
+        public IEnumerable<Reward> GetRewards()
+        {
+            return _availableRewards;
+        }
     }
 }
-

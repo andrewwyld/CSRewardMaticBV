@@ -1,13 +1,15 @@
-﻿
-using System;
+﻿#nullable enable
+
 using System.Collections.Generic;
 
 namespace RewardMatic_4000
 {
 	public interface IRewardRepository
 	{
+		IEnumerable<Reward> GetRewards();
+
 		Reward? GetRewardInProgress(uint score);
 
-		Reward? GetCurrentReward(uint score);
+		Reward? GetLatestRewardReceived(uint score);
 	}
 }
