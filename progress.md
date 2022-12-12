@@ -21,15 +21,6 @@ If a user’s score decreases, he should lose the awards up to the current numbe
   * Assumption - yes
 * Is it ok if I include localisation in the final solution even if the bonus task states that no coding is required?
   * Assumption - yes
-
-
-
-- [x] Add tests for what happens with unordered reward input
-
-- [x] The current UserRewardUnitTests should actually be testing the repository class.
-
-- [x] The Repository should also make accessible all available rewards, not just the service methods based on score.
-
 * What happens when we have two rewards with the same `ScoreDifferential`?
 	* Assumption - according to the specification,
 ```
@@ -41,8 +32,17 @@ Which, as I understand it, means that at any given time we should have a single 
 * Is the code going to be run in a multi-threaded environment?
 	* Assumption - yes
 * What do you look for in a solution? There are several possible implementations that would favor different kind of efficiencies (memory, cpu) and I'm wondering about how the tradeoff should look like in this case.
+* Are the query methods going to be called often? If yes, we'd need not only to search fast, but also to cache the responses
+  * Assumption - yes
 
 
+
+
+- [x] Add tests for what happens with unordered reward input
+
+- [x] The current UserRewardUnitTests should actually be testing the repository class.
+
+- [x] The Repository should also make accessible all available rewards, not just the service methods based on score.
 
 
 ## Reward Groups
@@ -94,3 +94,18 @@ We can insert all rewards in a dictionary and the key would be their value.
 What about the holes?
 
 We can insert dummy entries for all holes, but this would mean a lot of memory.
+
+
+Can the repository work without having to separate between whether it's created by a plain rewards list or a rewards group list?
+
+Maybe a group repository that holds groups info + holds a repository of plain rewards?
+
+Rewards and groups
+
+# TODO
+
+- [ ] Actual console interface with a repl
+- [ ] Make searching the rewards logarithmic
+- [ ] Implement caching
+- [ ] Think about handling localization runtime
+- [ ] Think about handling user score adjustments

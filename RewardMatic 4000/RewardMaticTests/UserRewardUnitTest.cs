@@ -13,21 +13,20 @@ namespace RewardMatic_4000
             _rewardService = new RewardService(new RewardRepository(new List<Reward>()));
         }
 
-        // test to make sure a user's score updates correctly and is arithmetically consistent
         [Test]
         public void TestScoreIncrementsCorrectly()
         {
             var user = new User(_rewardService);
 
-            Assert.AreEqual(0, user.Score);
+            Assert.That(user.Score, Is.EqualTo(0));
 
             user.UpdateScore(250);
             
-            Assert.AreEqual(250, user.Score);
+            Assert.That(user.Score, Is.EqualTo(250));
 
             user.UpdateScore(250000);
             
-            Assert.AreEqual(250250, user.Score);
+            Assert.That(user.Score, Is.EqualTo(250250));
         }
     }
 }

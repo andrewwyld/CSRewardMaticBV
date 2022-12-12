@@ -1,7 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
 using System.Collections.Generic;
-using Microsoft.QualityTools.Testing.Fakes;
 using Moq;
 
 namespace RewardMatic_4000
@@ -75,14 +74,14 @@ namespace RewardMatic_4000
 
             Assert.IsNotNull(service.GetRewardInProgress(score));
 
-            Assert.AreEqual(service.GetRewardInProgress(score).Name, "first-group-first");
-            Assert.AreEqual(service.GetRewardInProgress(score).ScoreDifferential, 1);
+            Assert.That(service.GetRewardInProgress(score).Name, Is.EqualTo("first-group-first"));
+            Assert.That(1, Is.EqualTo(service.GetRewardInProgress(score).ScoreDifferential));
 
             score = 1;
 
             Assert.IsNotNull(service.GetRewardInProgress(score));
-            Assert.AreEqual(service.GetRewardInProgress(score).Name, "first-group-third");
-            Assert.AreEqual(service.GetRewardInProgress(score).ScoreDifferential, 2);
+            Assert.That(service.GetRewardInProgress(score).Name, Is.EqualTo("first-group-third"));
+            Assert.That(2, Is.EqualTo(service.GetRewardInProgress(score).ScoreDifferential));
 
             score = 20;
             Assert.IsNull(service.GetRewardInProgress(score));
@@ -112,14 +111,14 @@ namespace RewardMatic_4000
             score = 1;
 
             Assert.IsNotNull(service.GetLatestRewardReceived(score));
-            Assert.AreEqual("first-group-first", service.GetLatestRewardReceived(score).Name);
-            Assert.AreEqual(1, service.GetLatestRewardReceived(score).ScoreDifferential);
+            Assert.That(service.GetLatestRewardReceived(score).Name, Is.EqualTo("first-group-first"));
+            Assert.That(service.GetLatestRewardReceived(score).ScoreDifferential, Is.EqualTo(1));
 
             score = 5;
 
             Assert.IsNotNull(service.GetLatestRewardReceived(score));
-            Assert.AreEqual("third-group-fourth", service.GetLatestRewardReceived(score).Name);
-            Assert.AreEqual(5, service.GetLatestRewardReceived(score).ScoreDifferential);
+            Assert.That(service.GetLatestRewardReceived(score).Name, Is.EqualTo("third-group-fourth"));
+            Assert.That(service.GetLatestRewardReceived(score).ScoreDifferential, Is.EqualTo(5));
 
             score = 0;
             rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(new List<RewardWithGroup>());
@@ -150,17 +149,17 @@ namespace RewardMatic_4000
 
             // Base case where score is 0
             Assert.IsNotNull(service.GetRewardGroupInProgress(score));
-            Assert.AreEqual("first-group", service.GetRewardGroupInProgress(score).Name);
+            Assert.That(service.GetRewardGroupInProgress(score).Name, Is.EqualTo("first-group"));
 
             score = 5;
 
             // Score is somewhere inbetween the reward groups
             Assert.IsNotNull(service.GetRewardGroupInProgress(score));
-            Assert.AreEqual("second-group", service.GetRewardGroupInProgress(score).Name);
+            Assert.That(service.GetRewardGroupInProgress(score).Name, Is.EqualTo("second-group"));
 
             score = 6;
             Assert.IsNotNull(service.GetRewardGroupInProgress(score));
-            Assert.AreEqual("third-group", service.GetRewardGroupInProgress(score).Name);
+            Assert.That(service.GetRewardGroupInProgress(score).Name, Is.EqualTo("third-group"));
 
             score = 30;
             // Score is outside of the bounds of all the groups
@@ -188,23 +187,23 @@ namespace RewardMatic_4000
 
             score = 1;
             Assert.IsNotNull(service.GetLatestRewardGroupReceived(score));
-            Assert.AreEqual("first-group", service.GetLatestRewardGroupReceived(score).Name);
+            Assert.That(service.GetLatestRewardGroupReceived(score).Name, Is.EqualTo("first-group"));
 
 
             // We have just completed a reward in the third group
             score = 5;
             Assert.IsNotNull(service.GetLatestRewardGroupReceived(score));
-            Assert.AreEqual("third-group", service.GetLatestRewardGroupReceived(score).Name);
+            Assert.That(service.GetLatestRewardGroupReceived(score).Name, Is.EqualTo("third-group"));
 
             // We have just completed a reward in the second group
             score = 6;
             Assert.IsNotNull(service.GetLatestRewardGroupReceived(score));
-            Assert.AreEqual("second-group", service.GetLatestRewardGroupReceived(score).Name);
+            Assert.That(service.GetLatestRewardGroupReceived(score).Name, Is.EqualTo("second-group"));
 
             // We have completed all the groups
             score = 60;
             Assert.IsNotNull(service.GetLatestRewardGroupReceived(score));
-            Assert.AreEqual("third-group", service.GetLatestRewardGroupReceived(score).Name);
+            Assert.That(service.GetLatestRewardGroupReceived(score).Name, Is.EqualTo("third-group"));
         }
 
         [Test]
@@ -225,17 +224,17 @@ namespace RewardMatic_4000
             // We have just completed the first group
             score = 5;
             Assert.IsNotNull(service.GetLatestCompletedRewardGroup(score));
-            Assert.AreEqual("first-group", service.GetLatestCompletedRewardGroup(score).Name);
+            Assert.That(service.GetLatestCompletedRewardGroup(score).Name, Is.EqualTo("first-group"));
 
             // We have just completed a reward in the second group
             score = 6;
             Assert.IsNotNull(service.GetLatestCompletedRewardGroup(score));
-            Assert.AreEqual("second-group", service.GetLatestCompletedRewardGroup(score).Name);
+            Assert.That(service.GetLatestCompletedRewardGroup(score).Name, Is.EqualTo("second-group"));
 
             // We have completed all the groups
             score = 60;
             Assert.IsNotNull(service.GetLatestCompletedRewardGroup(score));
-            Assert.AreEqual("third-group", service.GetLatestCompletedRewardGroup(score).Name);
+            Assert.That(service.GetLatestCompletedRewardGroup(score).Name, Is.EqualTo("third-group"));
         }
     }
 }

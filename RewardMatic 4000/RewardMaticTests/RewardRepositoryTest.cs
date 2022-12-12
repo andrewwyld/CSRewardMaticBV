@@ -56,7 +56,7 @@ namespace RewardMatic_4000
             var rewards = repository.GetRewards().ToList();
 
             Assert.IsNotEmpty(rewards);
-            Assert.AreEqual(4, rewards.Count());
+            Assert.That(rewards.Count, Is.EqualTo(4));
 
             var isOrdered = true;
 
@@ -83,7 +83,7 @@ namespace RewardMatic_4000
             rewards = repository.GetRewards().ToList();
 
             Assert.IsNotEmpty(rewards);
-            Assert.AreEqual(10, rewards.Count());
+            Assert.That(rewards.Count, Is.EqualTo(10));
 
             isOrdered = true;
 
@@ -111,8 +111,8 @@ namespace RewardMatic_4000
             var repository = new RewardRepository(_rewards);
 
             Assert.IsNotNull(repository.GetReward("first"));
-            Assert.AreEqual(1, repository.GetReward("first").ScoreDifferential);
-            Assert.AreEqual("first", repository.GetReward("first").Name);
+            Assert.That(repository.GetReward("first").ScoreDifferential, Is.EqualTo(1));
+            Assert.That(repository.GetReward("first").Name, Is.EqualTo("first"));
 
             Assert.IsNull(repository.GetReward("non-existing-award"));
 
@@ -120,8 +120,8 @@ namespace RewardMatic_4000
             repository = new RewardRepository(_rewardGroups);
 
             Assert.IsNotNull(repository.GetReward("first-group-second"));
-            Assert.AreEqual(4, repository.GetReward("first-group-second").ScoreDifferential);
-            Assert.AreEqual("first-group-second", repository.GetReward("first-group-second").Name);
+            Assert.That(repository.GetReward("first-group-second").ScoreDifferential, Is.EqualTo(4));
+            Assert.That(repository.GetReward("first-group-second").Name, Is.EqualTo("first-group-second"));
 
             Assert.IsNull(repository.GetReward("non-existing-group-non-existent"));
         }
@@ -135,7 +135,7 @@ namespace RewardMatic_4000
             var rewardGroups = repository.GetRewardGroups().ToList();
 
             Assert.IsNotEmpty(rewardGroups);
-            Assert.AreEqual(3, rewardGroups.Count());
+            Assert.That(rewardGroups.Count, Is.EqualTo(3));
 
             // Test by creating the repository with plain rewards
             repository = new RewardRepository(_rewards);
@@ -152,7 +152,7 @@ namespace RewardMatic_4000
             var rewardGroup = repository.GetRewardGroup("first-group");
 
             Assert.IsNotNull(rewardGroup);
-            Assert.AreEqual(3, rewardGroup.GroupRewards.Count());
+            Assert.That(rewardGroup.GroupRewards.Count, Is.EqualTo(3));
 
             // Test by creating the repository with plain rewards
             repository = new RewardRepository(_rewards);
