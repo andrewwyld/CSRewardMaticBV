@@ -35,7 +35,7 @@ If a user’s score decreases, he should lose the awards up to the current numbe
 ```
 You can't spend the same points on more than one reward!
 ```
-	Which, as I understand it, means that at any given time we should have a single award, we’re trying to claim.
+Which, as I understand it, means that at any given time we should have a single award, we’re trying to claim.
 * How do we differentiate between rewards with the same `ScoreDifferential`?
 	* Assumption - if we’re talking about reward groups, we should consider the reward from the “latest” reward group i.e. if groups 1 and 3 have rewards with score 300 and we have a score of 301, we should consider group 3 as the latest claimed award
 * Is the code going to be run in a multi-threaded environment?
