@@ -1,30 +1,28 @@
 #nullable enable
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RewardMatic_4000
 {
+    public record PointRange(uint Start, uint End);
+
     public class RewardGroup
     {
-        private readonly List<Reward> _groupRewards;
+        public List<Reward> GroupRewards { get; }
+
+        public PointRange Range { get; }
 
         public string Name { get; }
         
         public RewardGroup(string name, List<Reward> groupRewards)
         {
             Name = name;
-            _groupRewards = groupRewards;
-        }
+            GroupRewards = groupRewards;
 
-        public Reward? GetRewardByIndex(int i)
-        {
-            if (i < _groupRewards.Count)
-            {
-                return _groupRewards[i];
-            }
-            else
-            {
-                return null;
-            }
+            Range = new PointRange(
+                GroupRewards.Min(reward => reward.ScoreDifferential),
+                GroupRewards.Max(reward => reward.ScoreDifferential)
+            );
         }
     }
 }

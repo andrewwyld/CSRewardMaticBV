@@ -136,11 +136,13 @@ namespace RewardMatic_4000
             var repository = new RewardRepository(_rewardGroups);
             uint score = 0;
 
-            // Base case where score is 0. No reward groups completed
+            // Base case where score is 0, no rewards completed
             Assert.IsNull(repository.GetLatestRewardGroupReceived(score));
 
-            score = 2;
-            Assert.IsNull(repository.GetLatestRewardGroupReceived(score));
+            score = 1;
+            Assert.IsNotNull(repository.GetLatestRewardGroupReceived(score));
+            Assert.AreEqual("first-group", repository.GetLatestRewardGroupReceived(score).Name);
+
 
             // We have just completed a reward in the third group
             score = 5;
@@ -156,8 +158,34 @@ namespace RewardMatic_4000
             score = 60;
             Assert.IsNotNull(repository.GetLatestRewardGroupReceived(score));
             Assert.AreEqual("third-group", repository.GetLatestRewardGroupReceived(score).Name);
+        }
 
+        [Test]
+        public void TestGetLatestCompletedRewardGroup()
+        {
+            var repository = new RewardRepository(_rewardGroups);
+            uint score = 0;
 
+            // Base case where score is 0. No reward groups completed
+            Assert.IsNull(repository.GetLatestCompletedRewardGroup(score));
+
+            score = 1;
+            Assert.IsNull(repository.GetLatestCompletedRewardGroup(score));
+
+            // We have just completed the first group
+            score = 5;
+            Assert.IsNotNull(repository.GetLatestCompletedRewardGroup(score));
+            Assert.AreEqual("first-group", repository.GetLatestCompletedRewardGroup(score).Name);
+
+            // We have just completed a reward in the second group
+            score = 6;
+            Assert.IsNotNull(repository.GetLatestCompletedRewardGroup(score));
+            Assert.AreEqual("second-group", repository.GetLatestCompletedRewardGroup(score).Name);
+
+            // We have completed all the groups
+            score = 60;
+            Assert.IsNotNull(repository.GetLatestCompletedRewardGroup(score));
+            Assert.AreEqual("third-group", repository.GetLatestCompletedRewardGroup(score).Name);
         }
     }
 }

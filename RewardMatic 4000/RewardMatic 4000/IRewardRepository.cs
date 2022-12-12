@@ -15,5 +15,7 @@ namespace RewardMatic_4000
 		RewardGroup? GetRewardGroupInProgress(uint score);
 
 		RewardGroup? GetLatestRewardGroupReceived(uint score);
+
+		RewardGroup? GetLatestCompletedRewardGroup(uint score);
 	}
 }
