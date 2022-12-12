@@ -4,18 +4,17 @@ using System.Collections.Generic;
 
 namespace RewardMatic_4000
 {
-	public interface IRewardRepository
+    public record RewardWithGroup(Reward reward, string? groupName = null);
+
+    public interface IRewardRepository
 	{
-		IEnumerable<Reward> GetRewards();
+		IEnumerable<RewardWithGroup> GetRewards();
 
-		Reward? GetRewardInProgress(uint score);
+		Reward? GetReward(string name);
 
-		Reward? GetLatestRewardReceived(uint score);
+		IEnumerable<RewardGroup> GetRewardGroups();
 
-		RewardGroup? GetRewardGroupInProgress(uint score);
+		RewardGroup? GetRewardGroup(string name);
 
-		RewardGroup? GetLatestRewardGroupReceived(uint score);
-
-		RewardGroup? GetLatestCompletedRewardGroup(uint score);
 	}
 }

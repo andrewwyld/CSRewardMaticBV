@@ -1,6 +1,8 @@
 ﻿using System;
-using NUnit.Framework;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using NUnit.Framework;
 
 namespace RewardMatic_4000
 {
@@ -10,9 +12,9 @@ namespace RewardMatic_4000
 
         List<RewardGroup> _rewardGroups;
 
-        [SetUp]
-        public void Setup()
-        {
+		[SetUp]
+		public void Setup()
+		{
             _rewards = new List<Reward>
             {
                 new Reward(1, "first"),
@@ -45,147 +47,117 @@ namespace RewardMatic_4000
             };
         }
 
-        // test to make sure the "reward in progress" function works correctly
         [Test]
-        public void TestRewardInProgress()
+        public void TestGetRewards()
         {
-            var rewardRepository = new RewardRepository(_rewards);
-            uint score = 0;
+            // Test by creating the repository with a list of rewards
+            var repository = new RewardRepository(_rewards);
 
-            Assert.IsNotNull(rewardRepository.GetRewardInProgress(score));
+            var rewards = repository.GetRewards().ToList();
 
-            Assert.AreEqual(rewardRepository.GetRewardInProgress(score).Message, "first");
-            Assert.AreEqual(rewardRepository.GetRewardInProgress(score).ScoreDifferential, 1);
+            Assert.IsNotEmpty(rewards);
+            Assert.AreEqual(4, rewards.Count());
 
-            score = 1;
+            var isOrdered = true;
 
-            Assert.IsNotNull(rewardRepository.GetRewardInProgress(score));
-            Assert.AreEqual(rewardRepository.GetRewardInProgress(score).Message, "second");
-            Assert.AreEqual(rewardRepository.GetRewardInProgress(score).ScoreDifferential, 2);
+            for (int i = 0; i < rewards.Count() - 1; i++)
+            {
+                if (rewards[i].reward.ScoreDifferential > rewards[i + 1].reward.ScoreDifferential)
+                {
+                    isOrdered = false;
+                    break;
+                }
+            }
 
-            score = 4;
-            Assert.IsNull(rewardRepository.GetRewardInProgress(score));
+            Assert.IsTrue(isOrdered);
+
+            // Test with an empty list of rewards
+            repository = new RewardRepository(new List<Reward>());
+
+            Assert.IsEmpty(repository.GetRewards());
 
 
-            var emptyRepository = new RewardRepository(new List<Reward>());
-            score = 0;
-            Assert.IsNull(emptyRepository.GetRewardInProgress(score));
+            // Test by creating the repository with a list of reward groups
+            repository = new RewardRepository(_rewardGroups);
 
-            score = 2500000;
-            Assert.IsNull(emptyRepository.GetRewardInProgress(score));
+            rewards = repository.GetRewards().ToList();
+
+            Assert.IsNotEmpty(rewards);
+            Assert.AreEqual(10, rewards.Count());
+
+            isOrdered = true;
+
+            for (int i = 0; i < rewards.Count() - 1; i++)
+            {
+                if (rewards[i].reward.ScoreDifferential > rewards[i + 1].reward.ScoreDifferential)
+                {
+                    isOrdered = false;
+                    break;
+                }
+            }
+
+            Assert.IsTrue(isOrdered);
+
+            // Test with an empty list of reward groups
+            repository = new RewardRepository(new List<RewardGroup>());
+
+            Assert.IsEmpty(repository.GetRewards());
         }
 
-        // test to make sure the "latest reward received" function works correctly
         [Test]
-        public void TestLatestReward()
+        public void TestGetReward()
         {
-            var rewardRepository = new RewardRepository(_rewards);
-            uint score = 0;
+            // Test by creating with a list of rewards
+            var repository = new RewardRepository(_rewards);
 
-            Assert.IsNull(rewardRepository.GetLatestRewardReceived(score));
+            Assert.IsNotNull(repository.GetReward("first"));
+            Assert.AreEqual(1, repository.GetReward("first").ScoreDifferential);
+            Assert.AreEqual("first", repository.GetReward("first").Name);
 
-            score = 1;
+            Assert.IsNull(repository.GetReward("non-existing-award"));
 
-            Assert.IsNotNull(rewardRepository.GetLatestRewardReceived(score));
-            Assert.AreEqual("first", rewardRepository.GetLatestRewardReceived(score).Message);
-            Assert.AreEqual(1, rewardRepository.GetLatestRewardReceived(score).ScoreDifferential);
+            // Test by creating with a list of reward groups
+            repository = new RewardRepository(_rewardGroups);
 
-            score = 5;
+            Assert.IsNotNull(repository.GetReward("first-group-second"));
+            Assert.AreEqual(4, repository.GetReward("first-group-second").ScoreDifferential);
+            Assert.AreEqual("first-group-second", repository.GetReward("first-group-second").Name);
 
-            Assert.IsNotNull(rewardRepository.GetLatestRewardReceived(score));
-            Assert.AreEqual("fourth", rewardRepository.GetLatestRewardReceived(score).Message);
-            Assert.AreEqual(4, rewardRepository.GetLatestRewardReceived(score).ScoreDifferential);
-
-            score = 0;
-            var emptyRepository = new RewardRepository(new List<Reward>());
-            Assert.IsNull(emptyRepository.GetLatestRewardReceived(score));
-
-            score = 2500000;
-            Assert.IsNull(emptyRepository.GetLatestRewardReceived(score));
+            Assert.IsNull(repository.GetReward("non-existing-group-non-existent"));
         }
 
-
         [Test]
-        public void TestGetRewardGroupInProgress()
+        public void TestGetRewardGroups()
         {
+            // Test by creating the repository with reward groups
             var repository = new RewardRepository(_rewardGroups);
-            uint score = 0;
 
-            // Base case where score is 0
-            Assert.IsNotNull(repository.GetRewardGroupInProgress(score));
-            Assert.AreEqual("first-group", repository.GetRewardGroupInProgress(score).Name);
+            var rewardGroups = repository.GetRewardGroups().ToList();
 
-            score = 5;
+            Assert.IsNotEmpty(rewardGroups);
+            Assert.AreEqual(3, rewardGroups.Count());
 
-            // Score is somewhere inbetween the reward groups
-            Assert.IsNotNull(repository.GetRewardGroupInProgress(score));
-            Assert.AreEqual("second-group", repository.GetRewardGroupInProgress(score).Name);
+            // Test by creating the repository with plain rewards
+            repository = new RewardRepository(_rewards);
 
-            score = 6;
-            Assert.IsNotNull(repository.GetRewardGroupInProgress(score));
-            Assert.AreEqual("third-group", repository.GetRewardGroupInProgress(score).Name);
-
-            score = 30;
-            // Score is outside of the bounds of all the groups
-            Assert.IsNull(repository.GetRewardGroupInProgress(score));
+            Assert.IsEmpty(repository.GetRewardGroups());
         }
 
         [Test]
-        public void TestGetLatestRewardGroup()
+        public void GetRewardGroup()
         {
+            // Test by creating the repository with reward groups
             var repository = new RewardRepository(_rewardGroups);
-            uint score = 0;
 
-            // Base case where score is 0, no rewards completed
-            Assert.IsNull(repository.GetLatestRewardGroupReceived(score));
+            var rewardGroup = repository.GetRewardGroup("first-group");
 
-            score = 1;
-            Assert.IsNotNull(repository.GetLatestRewardGroupReceived(score));
-            Assert.AreEqual("first-group", repository.GetLatestRewardGroupReceived(score).Name);
+            Assert.IsNotNull(rewardGroup);
+            Assert.AreEqual(3, rewardGroup.GroupRewards.Count());
 
+            // Test by creating the repository with plain rewards
+            repository = new RewardRepository(_rewards);
 
-            // We have just completed a reward in the third group
-            score = 5;
-            Assert.IsNotNull(repository.GetLatestRewardGroupReceived(score));
-            Assert.AreEqual("third-group", repository.GetLatestRewardGroupReceived(score).Name);
-
-            // We have just completed a reward in the second group
-            score = 6;
-            Assert.IsNotNull(repository.GetLatestRewardGroupReceived(score));
-            Assert.AreEqual("second-group", repository.GetLatestRewardGroupReceived(score).Name);
-
-            // We have completed all the groups
-            score = 60;
-            Assert.IsNotNull(repository.GetLatestRewardGroupReceived(score));
-            Assert.AreEqual("third-group", repository.GetLatestRewardGroupReceived(score).Name);
-        }
-
-        [Test]
-        public void TestGetLatestCompletedRewardGroup()
-        {
-            var repository = new RewardRepository(_rewardGroups);
-            uint score = 0;
-
-            // Base case where score is 0. No reward groups completed
-            Assert.IsNull(repository.GetLatestCompletedRewardGroup(score));
-
-            score = 1;
-            Assert.IsNull(repository.GetLatestCompletedRewardGroup(score));
-
-            // We have just completed the first group
-            score = 5;
-            Assert.IsNotNull(repository.GetLatestCompletedRewardGroup(score));
-            Assert.AreEqual("first-group", repository.GetLatestCompletedRewardGroup(score).Name);
-
-            // We have just completed a reward in the second group
-            score = 6;
-            Assert.IsNotNull(repository.GetLatestCompletedRewardGroup(score));
-            Assert.AreEqual("second-group", repository.GetLatestCompletedRewardGroup(score).Name);
-
-            // We have completed all the groups
-            score = 60;
-            Assert.IsNotNull(repository.GetLatestCompletedRewardGroup(score));
-            Assert.AreEqual("third-group", repository.GetLatestCompletedRewardGroup(score).Name);
+            Assert.IsNull(repository.GetRewardGroup("first-group"));
         }
     }
 }

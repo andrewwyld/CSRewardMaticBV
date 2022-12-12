@@ -1,6 +1,7 @@
 #nullable enable
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace RewardMatic_4000
 {
@@ -8,11 +9,13 @@ namespace RewardMatic_4000
 
     public class RewardGroup
     {
+        [JsonProperty("rewards")]
         public List<Reward> GroupRewards { get; }
 
-        public PointRange Range { get; }
-
+        [JsonProperty("name")]
         public string Name { get; }
+
+        public PointRange Range { get; }
         
         public RewardGroup(string name, List<Reward> groupRewards)
         {

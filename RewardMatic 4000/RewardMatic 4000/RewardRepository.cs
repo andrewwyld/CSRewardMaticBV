@@ -2,16 +2,17 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace RewardMatic_4000
 {
-    public record RewardWithGroup(Reward reward, string? groupName = "");
-
     public class RewardRepository : IRewardRepository
     {
         private readonly ImmutableList<RewardWithGroup> _availableRewards;
         private readonly ImmutableDictionary<string, RewardGroup> _rewardGroups;
+
 
         public RewardRepository(List<Reward> rewards)
         {
@@ -45,58 +46,28 @@ namespace RewardMatic_4000
                     reward1.reward.ScoreDifferential.CompareTo(reward2.reward.ScoreDifferential));
         }
 
-        public RewardGroup? GetLatestRewardGroupReceived(uint score)
+        public static RewardRepository FromJson(string filename)
         {
-            var groupName = GetLatestRewardWithGroupReceived(score)?.groupName;
-
-            return getRewardGroupByName(groupName);
-        }
-
-        public Reward? GetLatestRewardReceived(uint score)
-        {
-            return GetLatestRewardWithGroupReceived(score)?.reward;
-        }
-
-        public RewardGroup? GetRewardGroupInProgress(uint score)
-        {
-            var groupName = GetRewardWithGroupInProgress(score)?.groupName;
-
-            return getRewardGroupByName(groupName);
-        }
-
-        public Reward? GetRewardInProgress(uint score)
-        {
-            return GetRewardWithGroupInProgress(score)?.reward;
-        }
-
-        public RewardGroup? GetLatestCompletedRewardGroup(uint score)
-        {
-            var groups = _rewardGroups.Values.ToList();
-
-            if (groups is null)
+            using (var reader = new StreamReader(filename))
             {
-                return null;
+                var content = reader.ReadToEnd();
+
+                if (content is null)
+                {
+                    return new RewardRepository(new List<RewardGroup>());
+                }
+
+                var groups = JsonConvert.DeserializeObject<List<RewardGroup>>(content);
+                return new RewardRepository(groups);
             }
-
-            var completedGroups = groups.Where(group => group.Range.End <= score);
-
-            if (completedGroups.Count() == 0)
-            {
-                return null;
-            }
-
-            return completedGroups.Aggregate((best, current) =>
-            {
-                return best.Range.End > current.Range.End ? best : current;
-            });
         }
 
-        public IEnumerable<Reward> GetRewards()
+        public IEnumerable<RewardWithGroup> GetRewards()
         {
-            return _availableRewards.Select(rewardWithGroup => rewardWithGroup.reward);
+            return _availableRewards;
         }
 
-        private RewardGroup? getRewardGroupByName(string? groupName)
+        public RewardGroup? GetRewardGroup(string groupName)
         {
             if (groupName is null)
             {
@@ -110,18 +81,16 @@ namespace RewardMatic_4000
             return _rewardGroups[groupName];
         }
 
-        private RewardWithGroup? GetRewardWithGroupInProgress(uint score)
+        public Reward? GetReward(string name)
         {
             return _availableRewards
-                .Where(rewardWithGroup => rewardWithGroup.reward.ScoreDifferential > score)
-                .FirstOrDefault();
+                .FirstOrDefault(rewardWithGroup => rewardWithGroup.reward.Name == name)?
+                .reward;
         }
 
-        private RewardWithGroup? GetLatestRewardWithGroupReceived(uint score)
+        public IEnumerable<RewardGroup> GetRewardGroups()
         {
-            return _availableRewards
-                .Where(rewardWithGroup => rewardWithGroup.reward.ScoreDifferential <= score)
-                .LastOrDefault();
+            return _rewardGroups.Values;
         }
     }
 }

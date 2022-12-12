@@ -5,11 +5,11 @@ namespace RewardMatic_4000
     public class User
     {
         private uint _score = 0;
-        private readonly IRewardRepository _rewardRepository;
+        private readonly IRewardService _rewardService;
 
-        public User(IRewardRepository rewardRepository)
+        public User(IRewardService rewardService)
         {
-            _rewardRepository = rewardRepository;
+            _rewardService = rewardService;
         }
 
         public uint Score
@@ -26,9 +26,9 @@ namespace RewardMatic_4000
         }
 
         public Reward? GetRewardInProgress() =>
-            _rewardRepository.GetRewardInProgress(_score);
+            _rewardService.GetRewardInProgress(_score);
 
         public Reward? GetLatestRewardReceived() =>
-            _rewardRepository.GetLatestRewardReceived(_score);
+            _rewardService.GetLatestRewardReceived(_score);
     }
 }

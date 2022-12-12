@@ -5,19 +5,19 @@ namespace RewardMatic_4000
 {
     public class UserTest
     {
-        private IRewardRepository _rewardRepository;
+        private IRewardService _rewardService;
 
         [SetUp]
         public void Setup()
         {
-            _rewardRepository = new RewardRepository(new List<Reward>());
+            _rewardService = new RewardService(new RewardRepository(new List<Reward>()));
         }
 
         // test to make sure a user's score updates correctly and is arithmetically consistent
         [Test]
         public void TestScoreIncrementsCorrectly()
         {
-            var user = new User(_rewardRepository);
+            var user = new User(_rewardService);
 
             Assert.AreEqual(0, user.Score);
 

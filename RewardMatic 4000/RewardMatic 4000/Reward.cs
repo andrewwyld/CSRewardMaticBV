@@ -1,4 +1,10 @@
-﻿namespace RewardMatic_4000
+﻿using Newtonsoft.Json;
+
+namespace RewardMatic_4000
 {
-    public record Reward (uint ScoreDifferential, string Message);
+    public record Reward
+    (
+        [property: JsonProperty("scoredifferential")] uint ScoreDifferential,
+        [property: JsonProperty("name")] string Name)
+    ;
 }
