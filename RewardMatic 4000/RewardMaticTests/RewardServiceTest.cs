@@ -75,13 +75,13 @@ namespace RewardMatic_4000
             Assert.IsNotNull(service.GetRewardInProgress(score));
 
             Assert.That(service.GetRewardInProgress(score).Name, Is.EqualTo("first-group-first"));
-            Assert.That(1, Is.EqualTo(service.GetRewardInProgress(score).ScoreDifferential));
+            Assert.That(service.GetRewardInProgress(score).ScoreDifferential, Is.EqualTo(1));
 
             score = 1;
 
             Assert.IsNotNull(service.GetRewardInProgress(score));
             Assert.That(service.GetRewardInProgress(score).Name, Is.EqualTo("first-group-third"));
-            Assert.That(2, Is.EqualTo(service.GetRewardInProgress(score).ScoreDifferential));
+            Assert.That(service.GetRewardInProgress(score).ScoreDifferential, Is.EqualTo(2));
 
             score = 20;
             Assert.IsNull(service.GetRewardInProgress(score));
