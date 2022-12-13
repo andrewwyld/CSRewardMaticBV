@@ -16,7 +16,7 @@ namespace RewardMatic_4000
         [Test]
         public void TestScoreIncrementsCorrectly()
         {
-            var user = new User(_rewardService);
+            var user = new User("Rodrigo", _rewardService);
 
             Assert.That(user.Score, Is.EqualTo(0));
 

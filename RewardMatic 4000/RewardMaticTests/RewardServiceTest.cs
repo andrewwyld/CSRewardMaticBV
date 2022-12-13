@@ -2,28 +2,19 @@
 using NUnit.Framework;
 using System.Collections.Generic;
 using Moq;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace RewardMatic_4000
 {
 	public class RewardServiceTest
 	{
-        List<Reward> _rewards;
-
         List<RewardGroup> _rewardGroups;
 
-        List<RewardWithGroup> _rewardsWithGroups;
+        List<Reward> _rewards;
 
         [SetUp]
         public void Setup()
         {
-            _rewards = new List<Reward>
-            {
-                new Reward(1, "first"),
-                new Reward(4, "fourth"),
-                new Reward(2, "second"),
-                new Reward(3, "third")
-            };
-
             _rewardGroups = new List<RewardGroup>
             {
                 new RewardGroup("first-group", new List<Reward>
@@ -47,18 +38,18 @@ namespace RewardMatic_4000
                 })
             };
 
-            _rewardsWithGroups = new List<RewardWithGroup>
+            _rewards = new List<Reward>
             {
-                new RewardWithGroup(new Reward(1, "first-group-first"), "first-group"),
-                new RewardWithGroup(new Reward(2, "first-group-third"), "first-group"),
-                new RewardWithGroup(new Reward(2, "second-group-first"), "second-group"),
-                new RewardWithGroup(new Reward(2, "third-group-third"), "third-group"),
-                new RewardWithGroup(new Reward(3, "second-group-third"), "second-group"),
-                new RewardWithGroup(new Reward(4, "first-group-second"), "first-group"),
-                new RewardWithGroup(new Reward(5, "third-group-fourth"), "third-group"),
-                new RewardWithGroup(new Reward(6, "second-group-second"), "second-group"),
-                new RewardWithGroup(new Reward(7, "third-group-second"), "third-group"),
-                new RewardWithGroup(new Reward(10, "third-group-first"), "third-group")
+                new Reward(1, "first-group-first", 1, _rewardGroups[0]),
+                new Reward(4, "first-group-second", 5, _rewardGroups[0]),
+                new Reward(2, "first-group-third", 7, _rewardGroups[0]),
+                new Reward(2, "second-group-first", 9, _rewardGroups[1]),
+                new Reward(6, "second-group-second", 15, _rewardGroups[1]),
+                new Reward(3, "second-group-third", 18,  _rewardGroups[1]),
+                new Reward(10, "third-group-first", 28, _rewardGroups[2]),
+                new Reward(7, "third-group-second", 35, _rewardGroups[2]),
+                new Reward(2, "third-group-third", 37, _rewardGroups[2]),
+                new Reward(5, "third-group-fourth", 42, _rewardGroups[2]),
             };
         }
 
@@ -67,75 +58,117 @@ namespace RewardMatic_4000
         public void TestRewardInProgress()
         {
             var rewardRepositoryMock = new Mock<IRewardRepository>();
-            rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(_rewardsWithGroups);
 
             var service = new RewardService(rewardRepositoryMock.Object);
             uint score = 0;
 
-            Assert.IsNotNull(service.GetRewardInProgress(score));
+            var WithNonEmptyRewardRepository = () =>
+            {
+                rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(_rewards);
+                Assert.That(service.GetRewardInProgress(score), Is.Not.Null);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(service.GetRewardInProgress(score).Name, Is.EqualTo("first-group-first"));
+                    Assert.That(service.GetRewardInProgress(score).ScoreDifferential, Is.EqualTo(1));
+                });
+                score = 1;
 
-            Assert.That(service.GetRewardInProgress(score).Name, Is.EqualTo("first-group-first"));
-            Assert.That(service.GetRewardInProgress(score).ScoreDifferential, Is.EqualTo(1));
+                Assert.That(service.GetRewardInProgress(score), Is.Not.Null);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(service.GetRewardInProgress(score).Name, Is.EqualTo("first-group-second"));
+                    Assert.That(service.GetRewardInProgress(score).ScoreDifferential, Is.EqualTo(4));
+                });
+                score = 20;
 
-            score = 1;
+                Assert.That(service.GetRewardInProgress(score), Is.Not.Null);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(service.GetRewardInProgress(score).Name, Is.EqualTo("third-group-first"));
+                    Assert.That(service.GetRewardInProgress(score).ScoreDifferential, Is.EqualTo(10));
+                });
+                score = 100;
+                Assert.That(service.GetRewardInProgress(score), Is.Null);
+            };
 
-            Assert.IsNotNull(service.GetRewardInProgress(score));
-            Assert.That(service.GetRewardInProgress(score).Name, Is.EqualTo("first-group-third"));
-            Assert.That(service.GetRewardInProgress(score).ScoreDifferential, Is.EqualTo(2));
+            var WithEmptyRewardRepository = () =>
+            {
+                // Stub an empty reward repository
+                rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(new List<Reward>());
+                service = new RewardService(rewardRepositoryMock.Object);
 
-            score = 20;
-            Assert.IsNull(service.GetRewardInProgress(score));
+                score = 0;
+                Assert.That(service.GetRewardInProgress(score), Is.Null);
 
+                score = 2500000;
+                Assert.That(service.GetRewardInProgress(score), Is.Null);
+            };
 
-            var emptyRepository = new RewardRepository(new List<Reward>());
-            service = new RewardService(emptyRepository);
-            score = 0;
-            Assert.IsNull(service.GetRewardInProgress(score));
-
-            score = 2500000;
-            Assert.IsNull(service.GetRewardInProgress(score));
+            WithNonEmptyRewardRepository();
+            WithEmptyRewardRepository();
         }
 
-        // test to make sure the "latest reward received" function works correctly
         [Test]
         public void TestLatestReward()
         {
             var rewardRepositoryMock = new Mock<IRewardRepository>();
-            rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(_rewardsWithGroups);
-
             var service = new RewardService(rewardRepositoryMock.Object);
             uint score = 0;
 
-            Assert.IsNull(service.GetLatestRewardReceived(score));
+            var WithNonEmptyRewardRepository = () =>
+            {
+                // Non-empty reward repository
+                rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(_rewards);
 
-            score = 1;
 
-            Assert.IsNotNull(service.GetLatestRewardReceived(score));
-            Assert.That(service.GetLatestRewardReceived(score).Name, Is.EqualTo("first-group-first"));
-            Assert.That(service.GetLatestRewardReceived(score).ScoreDifferential, Is.EqualTo(1));
+                Assert.That(service.GetLatestRewardReceived(score), Is.Null);
 
-            score = 5;
+                score = 1;
 
-            Assert.IsNotNull(service.GetLatestRewardReceived(score));
-            Assert.That(service.GetLatestRewardReceived(score).Name, Is.EqualTo("third-group-fourth"));
-            Assert.That(service.GetLatestRewardReceived(score).ScoreDifferential, Is.EqualTo(5));
+                Assert.That(service.GetLatestRewardReceived(score), Is.Not.Null);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(service.GetLatestRewardReceived(score).Name, Is.EqualTo("first-group-first"));
+                    Assert.That(service.GetLatestRewardReceived(score).ScoreDifferential, Is.EqualTo(1));
+                });
+                score = 7;
 
-            score = 0;
-            rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(new List<RewardWithGroup>());
-            service = new RewardService(rewardRepositoryMock.Object);
+                Assert.That(service.GetLatestRewardReceived(score), Is.Not.Null);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(service.GetLatestRewardReceived(score).Name, Is.EqualTo("first-group-third"));
+                    Assert.That(service.GetLatestRewardReceived(score).ScoreDifferential, Is.EqualTo(2));
+                });
+                score = 100;
+                Assert.That(service.GetLatestRewardReceived(score), Is.Not.Null);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(service.GetLatestRewardReceived(score).Name, Is.EqualTo("third-group-fourth"));
+                    Assert.That(service.GetLatestRewardReceived(score).ScoreDifferential, Is.EqualTo(5));
+                });
+            };
 
-            Assert.IsNull(service.GetLatestRewardReceived(score));
+            var WithEmptyRewardRepository = () =>
+            {
+                // Empty reward repository
+                rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(new List<Reward>());
+                service = new RewardService(rewardRepositoryMock.Object);
 
-            score = 2500000;
-            Assert.IsNull(service.GetLatestRewardReceived(score));
+                score = 0;
+                Assert.That(service.GetLatestRewardReceived(score), Is.Null);
+
+                score = 2500000;
+                Assert.That(service.GetLatestRewardReceived(score), Is.Null);
+            };
+
+            WithNonEmptyRewardRepository();
+            WithEmptyRewardRepository();
         }
-
 
         [Test]
         public void TestGetRewardGroupInProgress()
         {
             var rewardRepositoryMock = new Mock<IRewardRepository>();
-            rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(_rewardsWithGroups);
 
             var groupNames = new List<string>() { "first-group", "third-group", "second-group" };
             groupNames.ForEach(groupName =>
@@ -147,30 +180,45 @@ namespace RewardMatic_4000
             var service = new RewardService(rewardRepositoryMock.Object);
             uint score = 0;
 
-            // Base case where score is 0
-            Assert.IsNotNull(service.GetRewardGroupInProgress(score));
-            Assert.That(service.GetRewardGroupInProgress(score).Name, Is.EqualTo("first-group"));
+            var WithNonEmptyRewardRepository = () =>
+            {
+                rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(_rewards);
 
-            score = 5;
+                // Base case where score is 0
+                Assert.That(service.GetRewardGroupInProgress(score), Is.Not.Null);
+                Assert.That(service.GetRewardGroupInProgress(score).Name, Is.EqualTo("first-group"));
 
-            // Score is somewhere inbetween the reward groups
-            Assert.IsNotNull(service.GetRewardGroupInProgress(score));
-            Assert.That(service.GetRewardGroupInProgress(score).Name, Is.EqualTo("second-group"));
+                score = 7;
 
-            score = 6;
-            Assert.IsNotNull(service.GetRewardGroupInProgress(score));
-            Assert.That(service.GetRewardGroupInProgress(score).Name, Is.EqualTo("third-group"));
+                // Score is somewhere inbetween the reward groups
+                Assert.That(service.GetRewardGroupInProgress(score), Is.Not.Null);
+                Assert.That(service.GetRewardGroupInProgress(score).Name, Is.EqualTo("second-group"));
 
-            score = 30;
-            // Score is outside of the bounds of all the groups
-            Assert.IsNull(service.GetRewardGroupInProgress(score));
+                score = 18;
+                Assert.That(service.GetRewardGroupInProgress(score), Is.Not.Null);
+                Assert.That(service.GetRewardGroupInProgress(score).Name, Is.EqualTo("third-group"));
+
+                score = 60;
+                // Score is outside of the bounds of all the groups
+                Assert.That(service.GetRewardGroupInProgress(score), Is.Null);
+            };
+
+            var WithEmptyRewardRepository = () =>
+            {
+                rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(new List<Reward>());
+
+                Assert.That(service.GetRewardGroupInProgress(score), Is.Null);
+            };
+
+            WithNonEmptyRewardRepository();
+            WithEmptyRewardRepository();
+
         }
 
         [Test]
         public void TestGetLatestRewardGroup()
         {
             var rewardRepositoryMock = new Mock<IRewardRepository>();
-            rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(_rewardsWithGroups);
 
             var groupNames = new List<string>() { "first-group", "second-group", "third-group" };
             groupNames.ForEach(groupName =>
@@ -182,59 +230,88 @@ namespace RewardMatic_4000
             var service = new RewardService(rewardRepositoryMock.Object);
             uint score = 0;
 
-            // Base case where score is 0, no rewards completed
-            Assert.IsNull(service.GetLatestRewardGroupReceived(score));
+            var WithNonEmptyRewardRepository = () =>
+            {
+                rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(_rewards);
 
-            score = 1;
-            Assert.IsNotNull(service.GetLatestRewardGroupReceived(score));
-            Assert.That(service.GetLatestRewardGroupReceived(score).Name, Is.EqualTo("first-group"));
+                // Base case where score is 0, no rewards completed
+                Assert.That(service.GetLatestRewardGroupReceived(score), Is.Null);
+
+                score = 1;
+                Assert.That(service.GetLatestRewardGroupReceived(score), Is.Not.Null);
+                Assert.That(service.GetLatestRewardGroupReceived(score).Name, Is.EqualTo("first-group"));
 
 
-            // We have just completed a reward in the third group
-            score = 5;
-            Assert.IsNotNull(service.GetLatestRewardGroupReceived(score));
-            Assert.That(service.GetLatestRewardGroupReceived(score).Name, Is.EqualTo("third-group"));
+                // We have just completed a reward in the third group
+                score = 9;
+                Assert.That(service.GetLatestRewardGroupReceived(score), Is.Not.Null);
+                Assert.That(service.GetLatestRewardGroupReceived(score).Name, Is.EqualTo("second-group"));
 
-            // We have just completed a reward in the second group
-            score = 6;
-            Assert.IsNotNull(service.GetLatestRewardGroupReceived(score));
-            Assert.That(service.GetLatestRewardGroupReceived(score).Name, Is.EqualTo("second-group"));
+                // We have just completed a reward in the second group
+                score = 28;
+                Assert.That(service.GetLatestRewardGroupReceived(score), Is.Not.Null);
+                Assert.That(service.GetLatestRewardGroupReceived(score).Name, Is.EqualTo("third-group"));
 
-            // We have completed all the groups
-            score = 60;
-            Assert.IsNotNull(service.GetLatestRewardGroupReceived(score));
-            Assert.That(service.GetLatestRewardGroupReceived(score).Name, Is.EqualTo("third-group"));
+                // We have completed all the groups
+                score = 60;
+                Assert.That(service.GetLatestRewardGroupReceived(score), Is.Not.Null);
+                Assert.That(service.GetLatestRewardGroupReceived(score).Name, Is.EqualTo("third-group"));
+            };
+
+            var WithEmptyRewardRepository = () =>
+            {
+                rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(new List<Reward>());
+
+                Assert.That(service.GetLatestRewardGroupReceived(score), Is.Null);
+            };
+
+            WithNonEmptyRewardRepository();
+            WithEmptyRewardRepository();
         }
 
         [Test]
         public void TestGetLatestCompletedRewardGroup()
         {
             var rewardRepositoryMock = new Mock<IRewardRepository>();
-            rewardRepositoryMock.Setup(repository => repository.GetRewardGroups()).Returns(_rewardGroups);
 
             var service = new RewardService(rewardRepositoryMock.Object);
             uint score = 0;
 
-            // Base case where score is 0. No reward groups completed
-            Assert.IsNull(service.GetLatestCompletedRewardGroup(score));
+            var WithNonEmptyRewardRepository = () =>
+            {
+                rewardRepositoryMock.Setup(repository => repository.GetRewardGroups()).Returns(_rewardGroups);
 
-            score = 1;
-            Assert.IsNull(service.GetLatestCompletedRewardGroup(score));
+                // Base case where score is 0. No reward groups completed
+                Assert.That(service.GetLatestCompletedRewardGroup(score), Is.Null);
 
-            // We have just completed the first group
-            score = 5;
-            Assert.IsNotNull(service.GetLatestCompletedRewardGroup(score));
-            Assert.That(service.GetLatestCompletedRewardGroup(score).Name, Is.EqualTo("first-group"));
+                score = 1;
+                Assert.That(service.GetLatestCompletedRewardGroup(score), Is.Null);
 
-            // We have just completed a reward in the second group
-            score = 6;
-            Assert.IsNotNull(service.GetLatestCompletedRewardGroup(score));
-            Assert.That(service.GetLatestCompletedRewardGroup(score).Name, Is.EqualTo("second-group"));
+                // We have just completed the first group
+                score = 7;
+                Assert.That(service.GetLatestCompletedRewardGroup(score), Is.Not.Null);
+                Assert.That(service.GetLatestCompletedRewardGroup(score).Name, Is.EqualTo("first-group"));
 
-            // We have completed all the groups
-            score = 60;
-            Assert.IsNotNull(service.GetLatestCompletedRewardGroup(score));
-            Assert.That(service.GetLatestCompletedRewardGroup(score).Name, Is.EqualTo("third-group"));
+                // We have just completed a reward in the second group
+                score = 18;
+                Assert.That(service.GetLatestCompletedRewardGroup(score), Is.Not.Null);
+                Assert.That(service.GetLatestCompletedRewardGroup(score).Name, Is.EqualTo("second-group"));
+
+                // We have completed all the groups
+                score = 60;
+                Assert.That(service.GetLatestCompletedRewardGroup(score), Is.Not.Null);
+                Assert.That(service.GetLatestCompletedRewardGroup(score).Name, Is.EqualTo("third-group"));
+            };
+
+            var WithEmptyRewardRepository = () =>
+            {
+                rewardRepositoryMock.Setup(repository => repository.GetRewardGroups()).Returns(new List<RewardGroup>());
+
+                Assert.That(service.GetLatestCompletedRewardGroup(score), Is.Null);
+            };
+
+            WithNonEmptyRewardRepository();
+            WithEmptyRewardRepository();
         }
     }
 }

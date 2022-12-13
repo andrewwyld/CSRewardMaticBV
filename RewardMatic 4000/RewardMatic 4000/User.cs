@@ -7,10 +7,13 @@ namespace RewardMatic_4000
         private uint _score = 0;
         private readonly IRewardService _rewardService;
 
-        public User(IRewardService rewardService)
+        public User(string name, IRewardService rewardService)
         {
             _rewardService = rewardService;
+            Name = name;
         }
+
+        public string Name { get; set; }
 
         public uint Score
         {
@@ -30,5 +33,14 @@ namespace RewardMatic_4000
 
         public Reward? GetLatestRewardReceived() =>
             _rewardService.GetLatestRewardReceived(_score);
+
+        public RewardGroup? GetRewardGroupInProgress() =>
+            _rewardService.GetRewardGroupInProgress(_score);
+
+        public RewardGroup? GetLatestRewardGroupReceived() =>
+            _rewardService.GetLatestRewardGroupReceived(_score);
+
+        public RewardGroup? GetLatestCompletedRewardGroup() =>
+            _rewardService.GetLatestCompletedRewardGroup(_score);
     }
 }

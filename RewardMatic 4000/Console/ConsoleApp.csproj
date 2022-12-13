@@ -12,8 +12,14 @@
     <ProjectReference Include="..\RewardMatic 4000\RewardMatic 4000.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Commands\" />
+  </ItemGroup>
+  <ItemGroup>
     <None Update="rewards.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Commands\" />
   </ItemGroup>
 </Project>

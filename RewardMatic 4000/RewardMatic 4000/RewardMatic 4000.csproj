@@ -11,8 +11,10 @@
       <None Remove="Microsoft.QualityTools.Testing.Fakes" />
       <None Remove="Moq" />
       <None Remove="Newtonsoft.Json" />
+      <None Remove="Microsoft.Extensions.Caching.Memory" />
     </ItemGroup>
     <ItemGroup>
       <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+      <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
     </ItemGroup>
 </Project>

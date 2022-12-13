@@ -17,7 +17,7 @@ namespace RewardMatic_4000
 
         public RewardGroup? GetLatestRewardGroupReceived(uint score)
         {
-            var groupName = GetLatestRewardWithGroupReceived(score)?.groupName;
+            var groupName = GetLatestRewardWithGroupReceived(score)?.RewardGroup?.Name;
 
             if (groupName is null)
             {
@@ -29,12 +29,12 @@ namespace RewardMatic_4000
 
         public Reward? GetLatestRewardReceived(uint score)
         {
-            return GetLatestRewardWithGroupReceived(score)?.reward;
+            return GetLatestRewardWithGroupReceived(score);
         }
 
         public RewardGroup? GetRewardGroupInProgress(uint score)
         {
-            var groupName = GetRewardWithGroupInProgress(score)?.groupName;
+            var groupName = GetRewardWithGroupInProgress(score)?.RewardGroup?.Name;
 
             if (groupName is null)
             {
@@ -46,7 +46,7 @@ namespace RewardMatic_4000
 
         public Reward? GetRewardInProgress(uint score)
         {
-            return GetRewardWithGroupInProgress(score)?.reward;
+            return GetRewardWithGroupInProgress(score);
         }
 
         public RewardGroup? GetLatestCompletedRewardGroup(uint score)
@@ -57,31 +57,32 @@ namespace RewardMatic_4000
             {
                 return null;
             }
-
-            var completedGroups = groups.Where(group => group.Range.End <= score);
-
-            if (completedGroups.Count() == 0)
+            
+            uint cumulativeScoreForGroupCompletion = 0;
+            RewardGroup? candidateGroup = null;
+            groups.ToList().ForEach(group =>
             {
-                return null;
-            }
-
-            return completedGroups.Aggregate((best, current) =>
-            {
-                return best.Range.End > current.Range.End ? best : current;
+                cumulativeScoreForGroupCompletion += group.ScoreForGroupCompletion;
+                if (cumulativeScoreForGroupCompletion <= score)
+                {
+                    candidateGroup = group;
+                }
             });
+
+            return candidateGroup;
         }
 
-        private RewardWithGroup? GetRewardWithGroupInProgress(uint score)
+        private Reward? GetRewardWithGroupInProgress(uint score)
         {
             return rewardRepository.GetRewards()
-                .Where(rewardWithGroup => rewardWithGroup.reward.ScoreDifferential > score)
+                .Where(rewardWithGroup => rewardWithGroup.ScoreRequired > score)
                 .FirstOrDefault();
         }
 
-        private RewardWithGroup? GetLatestRewardWithGroupReceived(uint score)
+        private Reward? GetLatestRewardWithGroupReceived(uint score)
         {
             return rewardRepository.GetRewards()
-                .Where(rewardWithGroup => rewardWithGroup.reward.ScoreDifferential <= score)
+                .Where(rewardWithGroup => rewardWithGroup.ScoreRequired <= score)
                 .LastOrDefault();
         }
     }

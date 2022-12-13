@@ -5,27 +5,24 @@ using Newtonsoft.Json;
 
 namespace RewardMatic_4000
 {
-    public record PointRange(uint Start, uint End);
-
     public class RewardGroup
     {
         [JsonProperty("rewards")]
-        public List<Reward> GroupRewards { get; }
+        public List<Reward> Rewards { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; }
 
-        public PointRange Range { get; }
-        
-        public RewardGroup(string name, List<Reward> groupRewards)
+        public uint ScoreForGroupCompletion { get; set; }
+
+        [JsonConstructor]
+        public RewardGroup(string name, List<Reward> rewards)
         {
             Name = name;
-            GroupRewards = groupRewards;
+            Rewards = rewards;
 
-            Range = new PointRange(
-                GroupRewards.Min(reward => reward.ScoreDifferential),
-                GroupRewards.Max(reward => reward.ScoreDifferential)
-            );
+            ScoreForGroupCompletion =
+                Rewards.Aggregate((uint)0, (sum, current) => sum + current.ScoreDifferential);
         }
     }
 }
