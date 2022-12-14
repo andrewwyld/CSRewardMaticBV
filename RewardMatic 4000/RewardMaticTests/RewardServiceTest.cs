@@ -62,7 +62,7 @@ namespace RewardMatic_4000
             var service = new RewardService(rewardRepositoryMock.Object);
             uint score = 0;
 
-            var WithNonEmptyRewardRepository = () =>
+            var WithNonEmptyRewardRepository = new Action(() =>
             {
                 rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(_rewards);
                 Assert.That(service.GetRewardInProgress(score), Is.Not.Null);
@@ -89,9 +89,9 @@ namespace RewardMatic_4000
                 });
                 score = 100;
                 Assert.That(service.GetRewardInProgress(score), Is.Null);
-            };
+            });
 
-            var WithEmptyRewardRepository = () =>
+            var WithEmptyRewardRepository = new Action(() =>
             {
                 // Stub an empty reward repository
                 rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(new List<Reward>());
@@ -102,7 +102,7 @@ namespace RewardMatic_4000
 
                 score = 2500000;
                 Assert.That(service.GetRewardInProgress(score), Is.Null);
-            };
+            });
 
             WithNonEmptyRewardRepository();
             WithEmptyRewardRepository();
@@ -115,7 +115,7 @@ namespace RewardMatic_4000
             var service = new RewardService(rewardRepositoryMock.Object);
             uint score = 0;
 
-            var WithNonEmptyRewardRepository = () =>
+            var WithNonEmptyRewardRepository = new Action(() =>
             {
                 // Non-empty reward repository
                 rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(_rewards);
@@ -146,9 +146,9 @@ namespace RewardMatic_4000
                     Assert.That(service.GetLatestRewardReceived(score).Name, Is.EqualTo("third-group-fourth"));
                     Assert.That(service.GetLatestRewardReceived(score).ScoreDifferential, Is.EqualTo(5));
                 });
-            };
+            });
 
-            var WithEmptyRewardRepository = () =>
+            var WithEmptyRewardRepository = new Action(() =>
             {
                 // Empty reward repository
                 rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(new List<Reward>());
@@ -159,7 +159,7 @@ namespace RewardMatic_4000
 
                 score = 2500000;
                 Assert.That(service.GetLatestRewardReceived(score), Is.Null);
-            };
+            });
 
             WithNonEmptyRewardRepository();
             WithEmptyRewardRepository();
@@ -180,7 +180,7 @@ namespace RewardMatic_4000
             var service = new RewardService(rewardRepositoryMock.Object);
             uint score = 0;
 
-            var WithNonEmptyRewardRepository = () =>
+            var WithNonEmptyRewardRepository = new Action(() =>
             {
                 rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(_rewards);
 
@@ -201,14 +201,14 @@ namespace RewardMatic_4000
                 score = 60;
                 // Score is outside of the bounds of all the groups
                 Assert.That(service.GetRewardGroupInProgress(score), Is.Null);
-            };
+            });
 
-            var WithEmptyRewardRepository = () =>
+            var WithEmptyRewardRepository = new Action(() =>
             {
                 rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(new List<Reward>());
 
                 Assert.That(service.GetRewardGroupInProgress(score), Is.Null);
-            };
+            });
 
             WithNonEmptyRewardRepository();
             WithEmptyRewardRepository();
@@ -230,7 +230,7 @@ namespace RewardMatic_4000
             var service = new RewardService(rewardRepositoryMock.Object);
             uint score = 0;
 
-            var WithNonEmptyRewardRepository = () =>
+            var WithNonEmptyRewardRepository = new Action(() =>
             {
                 rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(_rewards);
 
@@ -256,14 +256,14 @@ namespace RewardMatic_4000
                 score = 60;
                 Assert.That(service.GetLatestRewardGroupReceived(score), Is.Not.Null);
                 Assert.That(service.GetLatestRewardGroupReceived(score).Name, Is.EqualTo("third-group"));
-            };
+            });
 
-            var WithEmptyRewardRepository = () =>
+            var WithEmptyRewardRepository = new Action(() =>
             {
                 rewardRepositoryMock.Setup(repository => repository.GetRewards()).Returns(new List<Reward>());
 
                 Assert.That(service.GetLatestRewardGroupReceived(score), Is.Null);
-            };
+            });
 
             WithNonEmptyRewardRepository();
             WithEmptyRewardRepository();
@@ -277,7 +277,7 @@ namespace RewardMatic_4000
             var service = new RewardService(rewardRepositoryMock.Object);
             uint score = 0;
 
-            var WithNonEmptyRewardRepository = () =>
+            var WithNonEmptyRewardRepository = new Action(() =>
             {
                 rewardRepositoryMock.Setup(repository => repository.GetRewardGroups()).Returns(_rewardGroups);
 
@@ -301,14 +301,14 @@ namespace RewardMatic_4000
                 score = 60;
                 Assert.That(service.GetLatestCompletedRewardGroup(score), Is.Not.Null);
                 Assert.That(service.GetLatestCompletedRewardGroup(score).Name, Is.EqualTo("third-group"));
-            };
+            });
 
-            var WithEmptyRewardRepository = () =>
+            var WithEmptyRewardRepository = new Action(() =>
             {
                 rewardRepositoryMock.Setup(repository => repository.GetRewardGroups()).Returns(new List<RewardGroup>());
 
                 Assert.That(service.GetLatestCompletedRewardGroup(score), Is.Null);
-            };
+            });
 
             WithNonEmptyRewardRepository();
             WithEmptyRewardRepository();

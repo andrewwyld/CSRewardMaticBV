@@ -1,10 +1,13 @@
 ﻿#nullable enable
 
+using System;
+using System.Collections.Generic;
 using ConsoleApp.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using RewardMatic_4000;
 
+// line below gives error: "Namespace body block expected"
 namespace ConsoleApp;
 
 class Program

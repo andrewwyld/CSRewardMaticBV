@@ -24,6 +24,7 @@ namespace ConsoleApp.Commands
         public IncrementUserScoreInput ParseUserInput(string input)
         {
             var splitInput = input.Split(' ');
+            // line below gives error: "Cannot access explicit implementation of 'ICollection.Count()'"
             if (splitInput.Count() < 2)
             {
                 throw new Exception("Please enter only a name and a score separated by space");

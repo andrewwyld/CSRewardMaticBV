@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using RewardMatic_4000;
 
 namespace ConsoleApp.Commands
