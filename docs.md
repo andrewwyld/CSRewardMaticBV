@@ -1,5 +1,12 @@
 # RewardMatic 4000
 
+## Run console app with Docker
+
+1. Install docker [from here](https://docs.docker.com/desktop/install/mac-install/)
+2. Go to the solution folder and run `docker build -t rewards-console .`
+3. After the build is done, run `docker run -i rewards-console`
+4. Interact with the system
+
 ## Structure
 
 ### RewardMatic_4000  
@@ -22,7 +29,7 @@ REPL application for interacting with users and rewards.
 
 The happy path goes something like this:
 1. `ViewAvailableCommands`
-2. `LoadFile` - load a json file with rewards
+2. `LoadFile` - load a json file with rewards (`rewards.json` is available)
 3. `ViewRewards` - verify that the LoadFile has done a good job
 4. `CreateUser` - to start interacting with an actual user
 5. `ViewUserRewards` - to see that initially, the user has no rewards

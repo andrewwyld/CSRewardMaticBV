@@ -5,6 +5,7 @@
 
         <IsPackable>false</IsPackable>
         <OutputType>Library</OutputType>
+        <RootNamespace>RewardMatic_4000</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

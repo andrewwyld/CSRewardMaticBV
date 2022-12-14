@@ -21,6 +21,6 @@
     <None Remove="Moq" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\RewardMatic 4000\RewardMatic 4000.csproj" />
+    <ProjectReference Include="..\RewardMatic4000\RewardMatic4000.csproj" />
   </ItemGroup>
 </Project>
